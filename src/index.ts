@@ -8,6 +8,7 @@ async function main() {
 
   const pieChart = document.querySelector<PieChart>('#pie-chart')!;
   const pieHeader = document.querySelector<HTMLElement>('#pie-header')!;
+  const pieSubHeader = document.querySelector<HTMLButtonElement>('#pie-subheader')!;
   const pieClear = document.querySelector<HTMLButtonElement>('#pie-clear')!;
 
   const tableChart = document.querySelector<TableChart>('#table-chart')!;
@@ -21,10 +22,12 @@ async function main() {
 
     if (selected < 0) {
       pieHeader.textContent = 'Worldwide';
+      pieSubHeader.textContent = data.Global.TotalConfirmed.toLocaleString();
       pieChart.data = preparePieData(data.Global);
     } else {
       const country = data.Countries[selected];
       pieHeader.textContent = country.Country;
+      pieSubHeader.textContent = country.TotalConfirmed.toLocaleString();
       pieChart.data = preparePieData(country);
     }
   }

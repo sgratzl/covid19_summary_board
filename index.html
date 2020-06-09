@@ -9,8 +9,8 @@
     <script module src="src/components/index.ts"></script>
   </head>
   <body>
-    <div class="root grow">
-      <section class="main grow">
+    <div class="wrapper">
+      <main class="main">
         <header class="main-header">
           <h1>COVID19 Summary</h1>
           <p>
@@ -18,21 +18,24 @@
             <a href="https://api.covid19api.com/" rel="noopener noreferrer">https://covid19api.com/</a>
           </p>
         </header>
-        <table-chart id="table-chart" class="grow"></table-chart>
-      </section>
+        <table-chart id="table-chart" class="main-chart"></table-chart>
+      </main>
       <aside class="aside">
-        <h2 id="pie-header" class="aside-header">No Country Selected</h2>
-        <pie-chart id="pie-chart" class="grow"></pie-chart>
+        <div class="aside-header">
+          <h2 id="pie-header" >Worldwide</h2>
+          <h4>Total Confirmed Cases: <span id="pie-subheader">0</span></h2>
+        </div>
+        <pie-chart id="pie-chart" class="aside-chart"></pie-chart>
         <button id="pie-clear" class="aside-button" disabled>clear selected country</button>
       </aside>
     </div>
-    <footer>
+    <footer class="footer">
       <div class="footer-contact">contact us</div>
       <div class="footer-contacts">
         <a class="footer-a" href="tel:+44123123123">+44 123 123 123</a>
         <a class="footer-a" href="mailto:covid19@gmail.com">covid19@gmail.com</a>
       </div>
-      <div class="footer-copyright grow">&copy; COVID19 Summary 2020</div>
+      <div class="footer-copyright">&copy; COVID19 Summary 2020</div>
     </footer>
     <script module src="src/index.ts"></script>
   </body>

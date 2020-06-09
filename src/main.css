@@ -15,21 +15,37 @@ body {
   color: var(--primary-text);
 }
 
-.grow {
+.wrapper {
   flex: 1 1 0;
-}
-
-.root {
   display: flex;
-  margin: 0.2em;
 }
 
 .main {
+  flex: 8 8 0;
   display: flex;
   flex-direction: column;
 }
 
-#table-chart {
+.aside {
+  flex: 1 1 20em;
+  min-width: 15em;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 961px) {
+  body {
+  }
+}
+
+.main-header {
+  padding: 1em;
+}
+
+.main-chart {
+  flex: 1 1 0;
+
   --text: black;
   --th-text: var(--primary-text);
   --th-bg: var(--bg);
@@ -37,38 +53,37 @@ body {
   --selection-text: var(--primary-text);
 }
 
-.aside {
-  width: 20em;
-  max-width: 20em;
-  display: flex;
-  flex-direction: column;
-  padding: 3em 1em 1em 1em;
-  background: var(--bg);
-}
-
 .aside-header {
+  margin: 4em 1em 1em 1em;
   text-align: center;
 }
 
+.aside-chart {
+  flex: 1 1 0;
+  margin: 1em;
+}
+
 .aside-button {
+  margin: 1em;
   border: none;
   background: var(--footer-bg);
   color: var(--footer-text);
   font-size: 0.8rem;
   padding: 1em;
-  margin: 1em;
   text-transform: uppercase;
 }
 
 .aside-button:not([disabled]):hover {
   box-shadow: 0 0 2px 2px var(--primary);
 }
+
 .aside-button[disabled] {
   opacity: 0.2;
   cursor: not-allowed;
 }
 
 footer {
+  grid-area: footer;
   display: flex;
   padding: 2em 1em;
   background: var(--footer-bg);
@@ -94,4 +109,5 @@ footer {
 
 .footer-copyright {
   text-align: right;
+  flex: 1 1 0;
 }

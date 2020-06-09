@@ -26,12 +26,19 @@ export default class PieChart extends HTMLElement {
     right: 0;
   }
   .legend > div {
+    display: flex;
     padding: 0.1em 0.2em;
   }
   .legend > div::before {
     content: '⬤';
     margin-right: 0.2em;
     color: var(--color);
+  }
+  .legend > div::after {
+    content: attr(data-count);
+    margin-left: 0.2em;
+    text-align: right;
+    flex-grow: 1;
   }
   </style>
   <svg viewBox="0 0 104 104">
@@ -147,7 +154,8 @@ export default class PieChart extends HTMLElement {
       .data(pieData, (d: PieArcDatum<IPieSlice>) => d.data.name)
       .join('div')
       .style('--color', (d) => d.data.color)
-      .text((d) => `${d.data.name}: ${d.data.value.toLocaleString()}`);
+      .attr('data-count', (d) => d.data.value.toLocaleString())
+      .text((d) => d.data.name);
   }
 }
 customElements.define('pie-chart', PieChart);

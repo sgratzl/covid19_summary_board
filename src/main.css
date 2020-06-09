@@ -52,6 +52,10 @@ body {
 .aside-button:not([disabled]):hover {
   box-shadow: 0 0 2px 2px var(--primary);
 }
+.aside-button[disabled] {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
 
 footer {
   display: flex;

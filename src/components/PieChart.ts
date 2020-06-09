@@ -1,4 +1,4 @@
-import { select, pie, arc, PieArcDatum } from 'd3';
+import { select, pie, arc, PieArcDatum, interpolateObject } from 'd3';
 import { createTemplate } from './utils';
 
 export declare type IPieSlice = {
@@ -26,10 +26,11 @@ export default class PieChart extends HTMLElement {
     right: 0;
   }
   .legend > div {
-    padding: 0.1em 0.2em 0.1em 1.2em;
+    padding: 0.1em 0.2em;
   }
   .legend > div::before {
     content: '⬤';
+    margin-right: 0.2em;
     color: var(--color);
   }
   </style>
@@ -96,23 +97,47 @@ export default class PieChart extends HTMLElement {
     const arcGenerator = arc<PieArcDatum<IPieSlice>>().innerRadius(0).outerRadius(50);
     const arcGeneratorHover = arc<PieArcDatum<IPieSlice>>().innerRadius(0).outerRadius(52);
     const root = select(this.#shadow).select('svg > g');
+
+    const noSlice: PieArcDatum<IPieSlice> = {
+      startAngle: 0,
+      endAngle: Math.PI * 2,
+      padAngle: 0,
+      value: 0,
+      index: 0,
+      data: { color: '', name: '', value: 0 },
+    };
+    const oldData = root.selectAll<SVGPathElement, PieArcDatum<IPieSlice>>('path').data();
+    function tweenArc(d: PieArcDatum<IPieSlice>, i: number) {
+      const interpolate = interpolateObject(oldData[i] ?? noSlice, d);
+      return (t: number) => arcGenerator(interpolate(t))!;
+    }
+
     root
       .selectAll('path')
       .data(pieData, (d: PieArcDatum<IPieSlice>) => d.data.name)
-      .join((enter) => {
-        const p = enter.append('path');
-        p.classed('pie-slice', true);
-        p.append('title');
-        p.on('mouseenter', function (this: SVGPathElement) {
-          select(this).transition().attr('d', arcGeneratorHover);
-        });
-        p.on('mouseleave', function (this: SVGPathElement) {
-          select(this).transition().attr('d', arcGenerator);
-        });
-        return p;
-      })
-      .attr('d', arcGenerator)
+      .join(
+        (enter) => {
+          const p = enter
+            .append('path')
+            .classed('pie-slice', true)
+            .attr('d', () => arcGenerator(noSlice))
+            .on('mouseenter', function (this: SVGPathElement) {
+              select(this).transition().attr('d', arcGeneratorHover);
+            })
+            .on('mouseleave', function (this: SVGPathElement) {
+              select(this).transition().attr('d', arcGenerator);
+            });
+          p.append('title');
+          return p;
+        },
+        (update) => update,
+        (exit) => {
+          exit.transition().attrTween('d', tweenArc).remove();
+        }
+      )
       .style('fill', (d) => d.data.color)
+      .transition()
+      .attrTween('d', tweenArc)
       .select('title')
       .text((d) => `${d.data.name}: ${d.data.value.toLocaleString()}`);
 

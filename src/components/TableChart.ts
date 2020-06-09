@@ -10,7 +10,13 @@ export declare type ITableHeader<T> = {
 };
 export declare type ITableHeaders<T> = ReadonlyArray<ITableHeader<T>>;
 
-declare type TableChartAttributeTypes = 'rows' | 'headers' | 'selected' | 'sortedColumnIndex' | 'sortedColumnOrder';
+declare type TableChartAttributeTypes =
+  | 'rows'
+  | 'headers'
+  | 'selected'
+  | 'sortedColumnIndex'
+  | 'sortedColumnOrder'
+  | 'top';
 
 export default class TableChart<T = any> extends HTMLElement {
   private static readonly template = createTemplate(`<style>
@@ -22,19 +28,20 @@ export default class TableChart<T = any> extends HTMLElement {
       --th-bg: lightgray;
       --selection-bg: lightgray;
       --selection-text: black;
+      --wrapper-position: absolute;
     }
     .wrapper {
-      position: absolute;
-      top: 0.2em;
-      right: 0.2em;
-      left: 0.2em;
-      bottom: 0.2em;
+      position: var(--wrapper-position);
+      top: 0;
+      right: 0;
+      left: 0;
+      bottom: 0;
       overflow: auto;
-      color: var(--text);
     }
     table {
-      border-collapse: collapse;
       min-width: 100%;
+      color: var(--text);
+      border-collapse: collapse;
     }
     th, td {
       padding: 1em;
@@ -83,6 +90,24 @@ export default class TableChart<T = any> extends HTMLElement {
       text-align: right;
       padding-right: 0.2em;
     }
+    .hidden {
+      display: none;
+    }
+    .show-more {
+      display: flex;
+    }
+    .show-more-button {
+      flex: 1 1 0;
+      padding: 1em;
+      border: none;
+      outline: none;
+      text-transform: uppercase;
+      background: none;
+      color: var(--th-text);
+    }
+    .show-more-button:hover {
+      font-weight: bold;
+    }
     </style>
     <div class="wrapper">
       <table>
@@ -91,6 +116,9 @@ export default class TableChart<T = any> extends HTMLElement {
         </thead>
         <tbody>
         </tbody>
+        <tfoot>
+          <tr><td class="hidden"><div class="show-more"><button class="show-more-button">Show More</button></div></td></tr>
+        </tfoot>
       </table>
     </div>`);
 
@@ -101,6 +129,7 @@ export default class TableChart<T = any> extends HTMLElement {
   #selected: number = -1;
   #sortedColumnIndex: number = -1;
   #sortedColumnOrder: 'asc' | 'desc' = 'asc';
+  #top: number = -1;
 
   constructor() {
     super();
@@ -110,7 +139,15 @@ export default class TableChart<T = any> extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['rows', 'header', 'selected', 'sortedColumnIndex', 'sortedColumnOrder'] as TableChartAttributeTypes[];
+    return [
+      'rows',
+      'header',
+      'selected',
+      'sortedColumnIndex',
+      'sortedColumnOrder',
+      'top',
+      'wrapper',
+    ] as TableChartAttributeTypes[];
   }
 
   attributeChangedCallback(name: TableChartAttributeTypes, oldValue: string, newValue: string) {
@@ -133,6 +170,9 @@ export default class TableChart<T = any> extends HTMLElement {
         break;
       case 'sortedColumnOrder':
         this.#sortedColumnOrder = newValue === 'desc' ? 'desc' : 'asc';
+        break;
+      case 'top':
+        this.#top = newValue == null || newValue === '' ? -1 : Math.max(-1, Number.parseInt(newValue, 10));
         break;
     }
     this.scheduleRender();
@@ -160,8 +200,18 @@ export default class TableChart<T = any> extends HTMLElement {
     if (v === this.#selected) {
       return;
     }
-    this.#selected = v;
-    this.scheduleRender();
+    this.setAttribute('selected', v.toString());
+  }
+
+  get top() {
+    return this.#top;
+  }
+
+  set top(v: number) {
+    if (v === this.#top) {
+      return;
+    }
+    this.setAttribute('top', v.toString());
   }
 
   get sortedColumnIndex() {
@@ -172,16 +222,14 @@ export default class TableChart<T = any> extends HTMLElement {
     if (v === this.#sortedColumnIndex) {
       return;
     }
-    this.#sortedColumnIndex = v;
-    this.scheduleRender();
+    this.setAttribute('sortedColumnIndex', v.toString());
   }
 
   set sortedColumnOrder(v: 'asc' | 'desc') {
     if (v === this.#sortedColumnOrder) {
       return;
     }
-    this.#sortedColumnOrder = v;
-    this.scheduleRender();
+    this.setAttribute('sortedColumnOrder', v);
   }
 
   get sortedColumnOrder() {
@@ -250,22 +298,30 @@ export default class TableChart<T = any> extends HTMLElement {
   private sortedData() {
     const indexedData = this.#rows.map((row, i) => ({ row, i }));
     const col = this.#headers[this.#sortedColumnIndex];
-    if (!col) {
-      return indexedData;
-    }
-    const compareFactor = this.#sortedColumnOrder === 'asc' ? -1 : 1;
+    if (col) {
+      const compareFactor = this.#sortedColumnOrder === 'asc' ? -1 : 1;
 
-    return indexedData.sort((a, b) => {
-      const va = accessor(a.row, col.attr);
-      const vb = accessor(b.row, col.attr);
-      if (va === vb) {
-        return a.i - b.i; // stable result
-      }
-      if (va < vb) {
-        return compareFactor;
-      }
-      return -compareFactor;
-    });
+      indexedData.sort((a, b) => {
+        const va = accessor(a.row, col.attr);
+        const vb = accessor(b.row, col.attr);
+        if (va === vb) {
+          return a.i - b.i; // stable result
+        }
+        if (va < vb) {
+          return compareFactor;
+        }
+        return -compareFactor;
+      });
+    }
+
+    if (this.#top > 0) {
+      return indexedData.slice(0, this.#top);
+    }
+    return indexedData;
+  }
+
+  private increaseTop() {
+    this.top = this.#top + 10; // TODO config
   }
 
   private render() {
@@ -312,6 +368,15 @@ export default class TableChart<T = any> extends HTMLElement {
       .join('td')
       .classed('number', (d) => d.type === 'number')
       .text((d) => (typeof d.value === 'number' ? d.value.toLocaleString() : String(d.value)));
+
+    root
+      .select('tfoot > tr > td')
+      .classed('hidden', this.#top < 0 || this.#top >= this.#rows.length)
+      .attr('colspan', this.#headers.length)
+      .select('button')
+      .on('click', () => {
+        this.increaseTop();
+      });
   }
 }
 customElements.define('table-chart', TableChart);

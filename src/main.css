@@ -34,11 +34,6 @@ body {
   flex-direction: column;
 }
 
-@media (max-width: 961px) {
-  body {
-  }
-}
-
 .main-header {
   padding: 1em;
 }
@@ -110,4 +105,31 @@ footer {
 .footer-copyright {
   text-align: right;
   flex: 1 1 0;
+}
+
+@media (max-width: 961px) {
+  .wrapper {
+    display: block;
+  }
+  .main-chart {
+    flex: unset;
+    --wrapper-position: 'relative';
+  }
+  .aside {
+    display: grid;
+    grid-template-areas:
+      'header chart'
+      'button chart';
+    grid-template-rows: 0.8fr fit-content(3em);
+    grid-template-columns: 0.3fr 0.7fr;
+  }
+  .aside-header {
+    grid-area: header;
+  }
+  .aside-button {
+    grid-area: button;
+  }
+  .aside-chart {
+    grid-area: chart;
+  }
 }

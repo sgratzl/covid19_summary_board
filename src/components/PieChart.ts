@@ -16,6 +16,7 @@ export default class PieChart extends HTMLElement {
   :host {
     position: relative;
     display: flex;
+    padding-bottom: 4em;
   }
   svg {
     flex: 1 1 0;

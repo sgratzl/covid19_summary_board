@@ -12,6 +12,7 @@ declare type PieChartAttributeTypes = 'data';
 export default class PieChart extends HTMLElement {
   readonly #shadow: ShadowRoot;
   #data: IPieChartData = [];
+  #updateCallback = -1;
 
   constructor() {
     super();
@@ -60,11 +61,21 @@ export default class PieChart extends HTMLElement {
         this.#data = JSON.parse(newValue);
         break;
     }
-    this.render();
+    this.scheduleRender();
+  }
+
+  private scheduleRender() {
+    if (this.#updateCallback >= 0) {
+      return;
+    }
+    this.#updateCallback = requestAnimationFrame(() => {
+      this.#updateCallback = -1;
+      this.render();
+    });
   }
 
   connectedCallback() {
-    this.render();
+    this.scheduleRender();
   }
 
   get data() {
@@ -73,7 +84,7 @@ export default class PieChart extends HTMLElement {
 
   set data(v: IPieChartData) {
     this.#data = v;
-    this.render();
+    this.scheduleRender();
   }
 
   private render() {

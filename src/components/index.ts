@@ -1,2 +1,2 @@
-export * from './TableComponent';
+export * from './TableChart';
 export * from './PieChart';

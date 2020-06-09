@@ -1,4 +1,4 @@
-import { select } from 'd3';
+import { select, color } from 'd3';
 import { accessor, createTemplate } from './utils';
 
 export declare type ITableHeader<T> = {
@@ -37,6 +37,11 @@ export default class TableChart<T = any> extends HTMLElement {
       position: sticky;
       top: 0;
       background: var(--th-bg);
+    }    
+    th[data-color]::before {
+      content: '⬤';
+      margin-right: 0.2em;
+      color: var(--color);
     }
     tr {
       cursor: pointer;
@@ -162,6 +167,8 @@ export default class TableChart<T = any> extends HTMLElement {
       .selectAll('th')
       .data(this.#headers.slice(), (d: ITableHeader<T>) => d.name)
       .join('th')
+      .attr('data-color', (d) => d.color ?? null)
+      .style('--color', (d) => d.color)
       .text((d) => d.name);
 
     root

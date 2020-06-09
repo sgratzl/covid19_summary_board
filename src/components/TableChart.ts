@@ -1,21 +1,29 @@
-import { select, event } from 'd3';
+import { select, event, scaleLinear } from 'd3';
 import { accessor, createTemplate } from './utils';
 
-export declare type ITableHeader<T> = {
+export declare type IStringTableHeader<T> = {
   readonly name: string;
-  readonly color?: string;
-  readonly type: 'string' | 'number';
   readonly sortAble?: boolean;
-  readonly attr: keyof T | ((d: T) => string | number);
+  readonly type: 'string';
+  readonly attr: keyof T | ((d: T) => string);
 };
+export declare type INumberTableHeader<T> = {
+  readonly name: string;
+  readonly sortAble?: boolean;
+  readonly type: 'number';
+  readonly color: string;
+  readonly domain: [number, number];
+  readonly attr: keyof T | ((d: T) => number);
+};
+export declare type ITableHeader<T> = IStringTableHeader<T> | INumberTableHeader<T>;
 export declare type ITableHeaders<T> = ReadonlyArray<ITableHeader<T>>;
 
 declare type TableChartAttributeTypes =
   | 'rows'
   | 'headers'
   | 'selected'
-  | 'sortedColumnIndex'
-  | 'sortedColumnOrder'
+  | 'sorted-column-index'
+  | 'sorted-column-order'
   | 'top';
 
 export default class TableChart<T = any> extends HTMLElement {
@@ -52,6 +60,7 @@ export default class TableChart<T = any> extends HTMLElement {
       background: var(--th-bg);
       color: var(--th-text);
       text-transform: uppercase;
+      z-index: 1;
     }    
     th[data-color]::before {
       content: '⬤';
@@ -87,8 +96,12 @@ export default class TableChart<T = any> extends HTMLElement {
       background: var(--selection-bg);
     }
     .number {
+      position: relative;
       text-align: right;
-      padding-right: 0.2em;
+      background-image: linear-gradient(to right, var(--color) 0%, var(--color) var(--width), transparent var(--width));
+      background-position: left center;
+      background-size: 98% 2em;
+      background-repeat: no-repeat;
     }
     .hidden {
       display: none;
@@ -143,8 +156,8 @@ export default class TableChart<T = any> extends HTMLElement {
       'rows',
       'header',
       'selected',
-      'sortedColumnIndex',
-      'sortedColumnOrder',
+      'sorted-column-index',
+      'sorted-column-order',
       'top',
       'wrapper',
     ] as TableChartAttributeTypes[];
@@ -164,11 +177,11 @@ export default class TableChart<T = any> extends HTMLElement {
       case 'rows':
         this.#rows = JSON.parse(newValue);
         break;
-      case 'sortedColumnIndex':
+      case 'sorted-column-index':
         this.#sortedColumnIndex =
           newValue == null || newValue === '' ? -1 : Math.max(-1, Number.parseInt(newValue, 10));
         break;
-      case 'sortedColumnOrder':
+      case 'sorted-column-order':
         this.#sortedColumnOrder = newValue === 'desc' ? 'desc' : 'asc';
         break;
       case 'top':
@@ -222,14 +235,14 @@ export default class TableChart<T = any> extends HTMLElement {
     if (v === this.#sortedColumnIndex) {
       return;
     }
-    this.setAttribute('sortedColumnIndex', v.toString());
+    this.setAttribute('sorted-column-index', v.toString());
   }
 
   set sortedColumnOrder(v: 'asc' | 'desc') {
     if (v === this.#sortedColumnOrder) {
       return;
     }
-    this.setAttribute('sortedColumnOrder', v);
+    this.setAttribute('sorted-column-order', v);
   }
 
   get sortedColumnOrder() {
@@ -339,8 +352,8 @@ export default class TableChart<T = any> extends HTMLElement {
           this.toggleSorting(d, i);
         })
       )
-      .attr('data-color', (d) => d.color ?? null)
-      .style('--color', (d) => d.color)
+      .attr('data-color', (d) => (d.type === 'number' ? d.color : null))
+      .style('--color', (d) => (d.type === 'number' ? d.color : null))
       .attr('data-sortable', (d, i) =>
         !d.sortAble ? null : this.#sortedColumnIndex === i ? this.#sortedColumnOrder : ''
       )
@@ -362,11 +375,19 @@ export default class TableChart<T = any> extends HTMLElement {
       .classed('selected', (d) => this.#selected === d.i)
       .selectAll('td')
       .data(
-        (d) => this.#headers.map((header) => ({ ...header, value: accessor(d.row, header.attr) })),
+        (d) =>
+          this.#headers.map(
+            (header) =>
+              ({ ...header, value: accessor(d.row, header.attr) } as ITableHeader<T> & { value: string | number })
+          ),
         (d: ITableHeader<T>) => d.name
       )
       .join('td')
       .classed('number', (d) => d.type === 'number')
+      .style('--color', (d) => (d.type === 'number' ? d.color : null))
+      .style('--width', (d) =>
+        d.type === 'number' ? `${scaleLinear().domain(d.domain).rangeRound([0, 100])(d.value as number)}%` : null
+      )
       .text((d) => (typeof d.value === 'number' ? d.value.toLocaleString() : String(d.value)));
 
     root

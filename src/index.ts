@@ -1,5 +1,5 @@
 import PieChart from './components/PieChart';
-import { fetchData, preparePieData, tableHeaders } from './data';
+import { fetchData, preparePieData, generateTableHeaders } from './data';
 import TableChart from './components/TableChart';
 
 async function main() {
@@ -12,9 +12,12 @@ async function main() {
   const pieClear = document.querySelector<HTMLButtonElement>('#pie-clear')!;
 
   const tableChart = document.querySelector<TableChart>('#table-chart')!;
-  tableChart.headers = tableHeaders;
+  const headers = generateTableHeaders(data);
+  tableChart.headers = headers;
   tableChart.rows = data.Countries;
-  tableChart.sortedColumnIndex = tableHeaders.findIndex((d) => d.sortAble);
+  // sort by total number of cases
+  tableChart.sortedColumnOrder = 'desc';
+  tableChart.sortedColumnIndex = 1;
 
   function updateState(selected: number) {
     tableChart.selected = selected;

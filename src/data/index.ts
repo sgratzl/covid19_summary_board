@@ -16,43 +16,49 @@ const colors = {
   recovered: schemeAccent[0],
 };
 
-export const tableHeaders: ITableHeaders<ICountyData> = [
-  {
-    name: 'Country',
-    attr: 'Country',
-    color: null,
-    type: 'string',
-    sortAble: true,
-  },
-  {
-    name: 'Total Confirmed',
-    attr: 'TotalConfirmed',
-    color: null,
-    type: 'number',
-    sortAble: true,
-  },
-  {
-    name: 'Total Active Cases',
-    attr: (d) => d.TotalConfirmed - d.TotalDeaths - d.TotalRecovered,
-    color: colors.active,
-    type: 'number',
-    sortAble: true,
-  },
-  {
-    name: 'Total Deaths',
-    attr: 'TotalDeaths',
-    color: colors.deaths,
-    type: 'number',
-    sortAble: true,
-  },
-  {
-    name: 'Total Recovered',
-    attr: 'TotalRecovered',
-    color: colors.recovered,
-    type: 'number',
-    sortAble: true,
-  },
-];
+export function generateTableHeaders(data: ISummaryData): ITableHeaders<ICountyData> {
+  const max = data.Countries.reduce((acc, d) => Math.max(acc, d.TotalConfirmed), 0);
+  return [
+    {
+      name: 'Country',
+      attr: 'Country',
+      type: 'string',
+      sortAble: true,
+    },
+    {
+      name: 'Total Confirmed',
+      attr: 'TotalConfirmed',
+      color: '#e6e6e6',
+      type: 'number',
+      sortAble: true,
+      domain: [0, max],
+    },
+    {
+      name: 'Total Active Cases',
+      attr: (d) => d.TotalConfirmed - d.TotalDeaths - d.TotalRecovered,
+      color: colors.active,
+      type: 'number',
+      sortAble: true,
+      domain: [0, max],
+    },
+    {
+      name: 'Total Deaths',
+      attr: 'TotalDeaths',
+      color: colors.deaths,
+      type: 'number',
+      sortAble: true,
+      domain: [0, max],
+    },
+    {
+      name: 'Total Recovered',
+      attr: 'TotalRecovered',
+      color: colors.recovered,
+      type: 'number',
+      sortAble: true,
+      domain: [0, max],
+    },
+  ];
+}
 
 export function preparePieData(data: Readonly<IStatisticEntry>): IPieChartData {
   return [

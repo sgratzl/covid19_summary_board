@@ -9,7 +9,7 @@
     "start": "parcel index.html",
     "build": "parcel build index.html",
     "test": "jest --watch",
-    "cypress": "cypress --open"
+    "e2e": "cypress --open"
   },
   "browserslist": [
     "Firefox ESR",

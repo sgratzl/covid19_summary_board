@@ -12,47 +12,11 @@ export declare type ITableHeaders<T> = ReadonlyArray<ITableHeader<T>>;
 declare type TableChartAttributeTypes = 'rows' | 'headers' | 'selected';
 
 export default class TableChart<T = any> extends HTMLElement {
-  // private static readonly template = createTemplate(`
-  // <style>
-  // :host {
-  //   position: relative;
-  //   display: flex;
-  // }
-  // table {
-  //   flex: 1 1 0;
-  // }
-  // thead {
-  //   position: sticky;
-  //   top: 0;
-  // }
-  // .number {
-  //   text-align: right;
-  // }
-  // </style>
-
-  // <table>
-  //   <thead>
-  //     <tr></tr>
-  //   </thead>
-  //   <tbody>
-  //   </tbody>
-  // </table>`);
-
-  readonly #shadow: ShadowRoot;
-  #updateCallback = -1;
-  #rows: ReadonlyArray<T> = [];
-  #headers: ITableHeaders<T> = [];
-  #selected: number = -1;
-
-  constructor() {
-    super();
-
-    this.#shadow = this.attachShadow({ mode: 'open' });
-    this.#shadow.innerHTML = `
-    <style>
+  private static readonly template = createTemplate(`<style>
     :host {
       position: relative;
       display: flex;
+      --th-bg: white;
     }
     .wrapper {
       position: absolute;
@@ -65,6 +29,7 @@ export default class TableChart<T = any> extends HTMLElement {
     th {
       position: sticky;
       top: 0;
+      background: var(--th-bg);
     }
     .number {
       text-align: right;
@@ -79,8 +44,19 @@ export default class TableChart<T = any> extends HTMLElement {
         <tbody>
         </tbody>
       </table>
-    </div>`;
-    // this.#shadow.appendChild(TableChart.template.cloneNode(true));
+    </div>`);
+
+  readonly #shadow: ShadowRoot;
+  #updateCallback = -1;
+  #rows: ReadonlyArray<T> = [];
+  #headers: ITableHeaders<T> = [];
+  #selected: number = -1;
+
+  constructor() {
+    super();
+
+    this.#shadow = this.attachShadow({ mode: 'open' });
+    this.#shadow.appendChild(TableChart.template.content.cloneNode(true));
   }
 
   static get observedAttributes() {

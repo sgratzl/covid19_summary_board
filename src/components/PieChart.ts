@@ -1,4 +1,5 @@
 import { select, pie, arc, PieArcDatum } from 'd3';
+import { createTemplate } from './utils';
 
 export declare type IPieSlice = {
   readonly name: string;
@@ -10,6 +11,34 @@ export declare type IPieChartData = ReadonlyArray<IPieSlice>;
 declare type PieChartAttributeTypes = 'data';
 
 export default class PieChart extends HTMLElement {
+  private static readonly template = createTemplate(`
+  <style>
+  :host {
+    position: relative;
+    display: flex;
+  }
+  svg {
+    flex: 1 1 0;
+  }
+  .legend {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+  }
+  .legend > div {
+    padding: 0.1em 0.2em 0.1em 1.2em;
+  }
+  .legend > div::before {
+    content: '⬤';
+    color: var(--color);
+  }
+  </style>
+  <svg viewBox="0 0 104 104">
+    <g transform="translate(52,52)">
+    </g>
+  </svg>
+  <div class="legend">
+  </div>`);
   readonly #shadow: ShadowRoot;
   #data: IPieChartData = [];
   #updateCallback = -1;
@@ -18,34 +47,7 @@ export default class PieChart extends HTMLElement {
     super();
 
     this.#shadow = this.attachShadow({ mode: 'open' });
-    this.#shadow.innerHTML = `
-    <style>
-    :host {
-      position: relative;
-      display: flex;
-    }
-    svg {
-      flex: 1 1 0;
-    }
-    .legend {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-    }
-    .legend > div {
-      padding: 0.1em 0.2em 0.1em 1.2em;
-    }
-    .legend > div::before {
-      content: '⬤';
-      color: var(--color);
-    }
-    </style>
-    <svg viewBox="0 0 104 104">
-      <g transform="translate(52,52)">
-      </g>
-    </svg>
-    <div class="legend">
-    </div>`;
+    this.#shadow.appendChild(PieChart.template.content.cloneNode(true));
   }
 
   static get observedAttributes() {

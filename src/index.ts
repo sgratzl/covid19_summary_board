@@ -31,12 +31,24 @@ async function main() {
       pieChart.data = preparePieData(country);
     }
   }
-  updateState(-1); // start with world
+  function updateUrl(selected: number) {
+    window.history.pushState({ selected }, '', `#${selected < 0 ? '' : data.Countries[selected].CountryCode}`);
+  }
+
+  updateState(window.history.state?.selected ?? -1);
+
+  window.addEventListener('popstate', () => {
+    console.log('state', window.history.state?.selected);
+    updateState(window.history.state?.selected ?? -1);
+  });
+
   tableChart.addEventListener('select', () => {
     updateState(tableChart.selected);
+    updateUrl(tableChart.selected);
   });
   pieClear.addEventListener('click', () => {
     updateState(-1);
+    updateUrl(-1);
   });
 }
 

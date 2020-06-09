@@ -1,14 +1,16 @@
 {
   "name": "roche_covid",
+  "private": true,
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "parcel index.html",
-    "test": "jest --watch"
-  },
+  "description": "Roche COVID19 Summary Demo page",
   "author": "Samuel Gratzl",
   "license": "MIT",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html",
+    "test": "jest --watch",
+    "cypress": "cypress --open"
+  },
   "browserslist": [
     "Firefox ESR",
     "last 2 Chrome versions"

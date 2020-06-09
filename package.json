@@ -1,0 +1,31 @@
+{
+  "name": "roche_covid",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel index.html",
+    "test": "jest --watch"
+  },
+  "author": "Samuel Gratzl",
+  "license": "MIT",
+  "browserslist": [
+    "Firefox ESR",
+    "last 2 Chrome versions"
+  ],
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.10.1",
+    "@testing-library/cypress": "^6.0.0",
+    "@testing-library/dom": "^7.11.0",
+    "@types/jest": "^25.2.3",
+    "cypress": "^4.8.0",
+    "jest": "^26.0.1",
+    "parcel-bundler": "^1.12.4",
+    "prettier": "^2.0.5",
+    "typescript": "^3.9.5"
+  },
+  "dependencies": {
+    "@types/d3": "^5.7.2",
+    "d3": "^5.16.0"
+  }
+}

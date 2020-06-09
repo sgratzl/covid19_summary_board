@@ -15,30 +15,35 @@ export const tableHeaders: ITableHeaders<ICountyData> = [
     attr: 'Country',
     color: null,
     type: 'string',
+    sortAble: true,
   },
   {
     name: 'Total Confirmed',
     attr: 'TotalConfirmed',
     color: null,
     type: 'number',
+    sortAble: true,
   },
   {
-    name: 'Total Active',
+    name: 'Total Active Cases',
     attr: (d) => d.TotalConfirmed - d.TotalDeaths - d.TotalRecovered,
     color: 'red',
     type: 'number',
+    sortAble: true,
   },
   {
     name: 'Total Deaths',
     attr: 'TotalDeaths',
     color: 'black',
     type: 'number',
+    sortAble: true,
   },
   {
     name: 'Total Recovered',
     attr: 'TotalRecovered',
     color: 'green',
     type: 'number',
+    sortAble: true,
   },
 ];
 
@@ -51,7 +56,7 @@ export function preparePieData(data: Readonly<IStatisticEntry>): IPieChartData {
       color: 'black',
     },
     {
-      name: 'Total Active',
+      name: 'Total Active Cases',
       value: data.TotalConfirmed - data.TotalDeaths - data.TotalRecovered,
       color: 'red',
     },

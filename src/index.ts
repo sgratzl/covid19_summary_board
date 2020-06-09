@@ -13,6 +13,7 @@ async function main() {
   const tableChart = document.querySelector<TableChart>('#table-chart')!;
   tableChart.headers = tableHeaders;
   tableChart.rows = data.Countries;
+  tableChart.sortedColumnIndex = tableHeaders.findIndex((d) => d.sortAble);
 
   function updateState(selected: number) {
     tableChart.selected = selected;

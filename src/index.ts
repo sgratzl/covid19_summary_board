@@ -8,12 +8,32 @@ async function main() {
 
   const pieChart = document.querySelector<PieChart>('#pie-chart')!;
   const pieHeader = document.querySelector<HTMLElement>('#pie-header')!;
-  pieHeader.textContent = 'Worldwide';
-  pieChart.data = preparePieData(data.Global);
+  const pieClear = document.querySelector<HTMLButtonElement>('#pie-clear')!;
 
   const tableChart = document.querySelector<TableChart>('#table-chart')!;
   tableChart.headers = tableHeaders;
   tableChart.rows = data.Countries;
+
+  function updateState(selected: number) {
+    tableChart.selected = selected;
+    pieClear.disabled = selected < 0;
+
+    if (selected < 0) {
+      pieHeader.textContent = 'Worldwide';
+      pieChart.data = preparePieData(data.Global);
+    } else {
+      const country = data.Countries[selected];
+      pieHeader.textContent = country.Country;
+      pieChart.data = preparePieData(country);
+    }
+  }
+  updateState(-1); // start with world
+  tableChart.addEventListener('select', () => {
+    updateState(tableChart.selected);
+  });
+  pieClear.addEventListener('click', () => {
+    updateState(-1);
+  });
 }
 
 window.addEventListener('load', main);

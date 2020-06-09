@@ -17,19 +17,33 @@ export default class TableChart<T = any> extends HTMLElement {
       position: relative;
       display: flex;
       --th-bg: white;
+      --selection-bg: orange;
     }
     .wrapper {
       position: absolute;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      left: 0;
+      top: 0.2em;
+      right: 0.2em;
+      left: 0.2em;
+      bottom: 0.2em;
       overflow: auto;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 0.25em;
     }
     th {
       position: sticky;
       top: 0;
       background: var(--th-bg);
+    }
+    tr {
+      cursor: pointer;
+    }
+    tr.selected,
+    tr:hover {
+      box-shadow: 0 0 1px 1px var(--selection-bg);
     }
     .number {
       text-align: right;
@@ -99,6 +113,9 @@ export default class TableChart<T = any> extends HTMLElement {
   }
 
   set selected(v: number) {
+    if (v === this.#selected) {
+      return;
+    }
     this.#selected = v;
     this.scheduleRender();
   }
@@ -108,6 +125,9 @@ export default class TableChart<T = any> extends HTMLElement {
   }
 
   set rows(v: ReadonlyArray<T>) {
+    if (v === this.#rows) {
+      return;
+    }
     this.#rows = v;
     this.scheduleRender();
   }
@@ -117,8 +137,21 @@ export default class TableChart<T = any> extends HTMLElement {
   }
 
   set headers(v: ITableHeaders<T>) {
+    if (v === this.#headers) {
+      return;
+    }
+
     this.#headers = v;
     this.scheduleRender();
+  }
+
+  private toggleSelection(index: number) {
+    this.selected = this.#selected === index ? -1 : index;
+    this.dispatchEvent(
+      new CustomEvent('select', {
+        detail: this.#selected,
+      })
+    );
   }
 
   private render() {
@@ -135,7 +168,14 @@ export default class TableChart<T = any> extends HTMLElement {
       .select('tbody')
       .selectAll('tr')
       .data(this.#rows.slice())
-      .join('tr')
+      .join((enter) => {
+        const tr = enter.append('tr');
+        tr.on('click', (_, i) => {
+          this.toggleSelection(i);
+        });
+        return tr;
+      })
+      .classed('selected', (_, i) => this.#selected === i)
       .selectAll('td')
       .data(
         (row) => this.#headers.map((header) => ({ ...header, value: accessor(row, header.attr) })),

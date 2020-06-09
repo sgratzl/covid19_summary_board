@@ -17,8 +17,11 @@ export default class TableChart<T = any> extends HTMLElement {
     :host {
       position: relative;
       display: flex;
-      --th-bg: white;
-      --selection-bg: orange;
+      --text: black;
+      --th-text: black;
+      --th-bg: lightgray;
+      --selection-bg: lightgray;
+      --selection-text: black;
     }
     .wrapper {
       position: absolute;
@@ -27,17 +30,19 @@ export default class TableChart<T = any> extends HTMLElement {
       left: 0.2em;
       bottom: 0.2em;
       overflow: auto;
+      color: var(--text);
     }
     table {
       border-collapse: collapse;
     }
     th, td {
-      padding: 0.75em;
+      padding: 1em;
     }
     th {
       position: sticky;
       top: 0;
       background: var(--th-bg);
+      color: var(--th-text);
       text-transform: uppercase;
     }    
     th[data-color]::before {
@@ -66,9 +71,11 @@ export default class TableChart<T = any> extends HTMLElement {
     }
     tbody > tr {
       cursor: pointer;
+      border-bottom: 1px solid var(--th-bg);
     }
     tbody > tr.selected,
     tbody > tr:hover {
+      color: var(--selection-text);
       background: var(--selection-bg);
     }
     .number {

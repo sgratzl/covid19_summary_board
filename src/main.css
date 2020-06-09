@@ -7,9 +7,12 @@ body {
   display: flex;
   flex-direction: column;
 
-  --primary: rgb(70, 130, 180);
-  --primary-bg: rgba(70, 130, 180, 0.4);
-  --primary-text: white;
+  --primary-text: #2799fa;
+  --bg: #f1f8fe;
+  --footer-bg: #2799fa;
+  --footer-text: white;
+
+  color: var(--primary-text);
 }
 
 .grow {
@@ -26,13 +29,21 @@ body {
   flex-direction: column;
 }
 
+#table-chart {
+  --text: black;
+  --th-text: var(--primary-text);
+  --th-bg: var(--bg);
+  --selection-bg: var(--bg);
+  --selection-text: var(--primary-text);
+}
+
 .aside {
   width: 20em;
   max-width: 20em;
   display: flex;
   flex-direction: column;
   padding: 3em 1em 1em 1em;
-  background: var(--primary-bg);
+  background: var(--bg);
 }
 
 .aside-header {
@@ -41,11 +52,11 @@ body {
 
 .aside-button {
   border: none;
-  background: var(--primary);
-  color: var(--primary-text);
+  background: var(--footer-bg);
+  color: var(--footer-text);
   font-size: 0.8rem;
-  padding: 0.5em 1em;
-  margin: 0.25em;
+  padding: 1em;
+  margin: 1em;
   text-transform: uppercase;
 }
 
@@ -59,18 +70,26 @@ body {
 
 footer {
   display: flex;
-  padding: 1em;
-  background: var(--primary);
-  color: var(--primary-text);
+  padding: 2em 1em;
+  background: var(--footer-bg);
+  color: var(--footer-text);
   display: flex;
+  align-items: center;
+}
+
+.footer-contact {
+  align-self: flex-start;
+  text-transform: uppercase;
 }
 
 .footer-a,
 .footer-a:visited,
 .footer-a:hover,
 .footer-a:focus {
+  padding-left: 1em;
+  display: block;
   text-decoration: none;
-  color: --primary-text;
+  color: var(--footer-text);
 }
 
 .footer-copyright {

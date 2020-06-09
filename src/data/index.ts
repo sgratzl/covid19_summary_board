@@ -1,5 +1,6 @@
 import { ISummaryData, IStatisticEntry, ICountyData } from './interfaces';
 import { ITableHeaders, IPieChartData } from '../components/index';
+import { schemeAccent } from 'd3';
 
 export * from './interfaces';
 
@@ -8,6 +9,12 @@ export function fetchData(): Promise<Readonly<ISummaryData>> {
     cache: 'force-cache',
   }).then((r) => r.json());
 }
+
+const colors = {
+  active: schemeAccent[2],
+  deaths: schemeAccent[4],
+  recovered: schemeAccent[0],
+};
 
 export const tableHeaders: ITableHeaders<ICountyData> = [
   {
@@ -27,43 +34,42 @@ export const tableHeaders: ITableHeaders<ICountyData> = [
   {
     name: 'Total Active Cases',
     attr: (d) => d.TotalConfirmed - d.TotalDeaths - d.TotalRecovered,
-    color: 'red',
+    color: colors.active,
     type: 'number',
     sortAble: true,
   },
   {
     name: 'Total Deaths',
     attr: 'TotalDeaths',
-    color: 'black',
+    color: colors.deaths,
     type: 'number',
     sortAble: true,
   },
   {
     name: 'Total Recovered',
     attr: 'TotalRecovered',
-    color: 'green',
+    color: colors.recovered,
     type: 'number',
     sortAble: true,
   },
 ];
 
 export function preparePieData(data: Readonly<IStatisticEntry>): IPieChartData {
-  // TODO better colors
   return [
-    {
-      name: 'Total Deaths',
-      value: data.TotalDeaths,
-      color: 'black',
-    },
     {
       name: 'Total Active Cases',
       value: data.TotalConfirmed - data.TotalDeaths - data.TotalRecovered,
-      color: 'red',
+      color: colors.active,
+    },
+    {
+      name: 'Total Deaths',
+      value: data.TotalDeaths,
+      color: colors.deaths,
     },
     {
       name: 'Total Recovered',
       value: data.TotalRecovered,
-      color: 'green',
+      color: colors.recovered,
     },
   ];
 }

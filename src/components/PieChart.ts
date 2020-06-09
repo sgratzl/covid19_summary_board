@@ -8,7 +8,7 @@ export declare type IPieSlice = {
 };
 export declare type IPieChartData = ReadonlyArray<IPieSlice>;
 
-declare type PieChartAttributeTypes = 'data';
+declare type PieChartAttributeTypes = 'data' | 'legend';
 
 export default class PieChart extends HTMLElement {
   private static readonly template = createTemplate(`
@@ -24,6 +24,9 @@ export default class PieChart extends HTMLElement {
     position: absolute;
     bottom: 0;
     right: 0;
+  }
+  .hidden {
+    display: none;
   }
   .legend > div {
     display: flex;
@@ -48,8 +51,9 @@ export default class PieChart extends HTMLElement {
   <div class="legend">
   </div>`);
   readonly #shadow: ShadowRoot;
-  #data: IPieChartData = [];
   #updateCallback = -1;
+  #data: IPieChartData = [];
+  #legend = true;
 
   constructor() {
     super();
@@ -59,7 +63,7 @@ export default class PieChart extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['data'] as PieChartAttributeTypes[];
+    return ['data', 'legend'] as PieChartAttributeTypes[];
   }
 
   attributeChangedCallback(name: PieChartAttributeTypes, oldValue: string, newValue: string) {
@@ -70,6 +74,8 @@ export default class PieChart extends HTMLElement {
       case 'data':
         this.#data = JSON.parse(newValue);
         break;
+      case 'legend':
+        this.#legend = newValue !== 'false';
     }
     this.scheduleRender();
   }
@@ -94,6 +100,18 @@ export default class PieChart extends HTMLElement {
 
   set data(v: IPieChartData) {
     this.#data = v;
+    this.scheduleRender();
+  }
+
+  get legend() {
+    return this.#legend;
+  }
+
+  set legend(v: boolean) {
+    if (this.#legend === v) {
+      return;
+    }
+    this.#legend = v;
     this.scheduleRender();
   }
 
@@ -149,6 +167,7 @@ export default class PieChart extends HTMLElement {
       .text((d) => `${d.data.name}: ${d.data.value.toLocaleString()}`);
 
     const legend = select(this.#shadow).select('.legend');
+    legend.classed('hidden', !this.#legend);
     legend
       .selectAll('div')
       .data(pieData, (d: PieArcDatum<IPieSlice>) => d.data.name)

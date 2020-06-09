@@ -34,6 +34,7 @@ export default class TableChart<T = any> extends HTMLElement {
     }
     table {
       border-collapse: collapse;
+      min-width: 100%;
     }
     th, td {
       padding: 1em;
@@ -109,7 +110,7 @@ export default class TableChart<T = any> extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['rows', 'header', 'selected'] as TableChartAttributeTypes[];
+    return ['rows', 'header', 'selected', 'sortedColumnIndex', 'sortedColumnOrder'] as TableChartAttributeTypes[];
   }
 
   attributeChangedCallback(name: TableChartAttributeTypes, oldValue: string, newValue: string) {

@@ -429,7 +429,19 @@ export default class TableChart<T = any> extends HTMLElement {
     if (this.#selected >= 0) {
       const selectedRow = root.select(`tr[data-i="${this.#selected}"]`).node() as HTMLElement;
       if (selectedRow && typeof selectedRow.scrollIntoView === 'function') {
-        selectedRow.scrollIntoView();
+        const rect = selectedRow.getBoundingClientRect();
+        const parent = this.#shadow.querySelector('.wrapper')!.getBoundingClientRect();
+        if (rect.y < parent.y) {
+          selectedRow.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        } else if (rect.y > parent.y + parent.height) {
+          selectedRow.scrollIntoView({
+            behavior: 'smooth',
+            block: 'end',
+          });
+        }
       }
     }
 

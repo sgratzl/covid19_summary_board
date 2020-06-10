@@ -45,7 +45,20 @@ async function main() {
     window.history.pushState({ selected }, '', `#${selected < 0 ? '' : data.Countries[selected]?.CountryCode ?? ''}`);
   }
 
-  updateState(window.history.state?.selected ?? -1);
+  function determineInitialSelection() {
+    const state = window.history.state?.selected ?? -1;
+    if (state >= 0) {
+      return state;
+    }
+    // check hash
+    const hash = window.location.hash.slice(1);
+    if (!hash) {
+      return -1;
+    }
+    return data.Countries.findIndex((d) => d.CountryCode === hash);
+  }
+
+  updateState(determineInitialSelection());
 
   window.addEventListener('popstate', () => {
     updateState(window.history.state?.selected ?? -1);

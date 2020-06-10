@@ -1,3 +1,4 @@
 {
-  "testFiles": "**/*.spec.ts"
+  "testFiles": "**/*.spec.ts",
+  "fileServerFolder": "./dist"
 }

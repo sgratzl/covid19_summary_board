@@ -173,9 +173,6 @@ export default class TableChart<T = any> extends HTMLElement {
       return;
     }
     switch (name) {
-      case 'selected':
-        this.#selected = newValue == null || newValue === '' ? -1 : Math.max(-1, Number.parseInt(newValue, 10));
-        break;
       case 'headers':
         this.#headers = JSON.parse(newValue);
         break;
@@ -191,6 +188,9 @@ export default class TableChart<T = any> extends HTMLElement {
         break;
       case 'top':
         this.#top = newValue == null || newValue === '' ? -1 : Math.max(-1, Number.parseInt(newValue, 10));
+        break;
+      case 'selected':
+        this.#selected = newValue == null || newValue === '' ? -1 : Math.max(-1, Number.parseInt(newValue, 10));
         break;
       case 'batch':
         this.#batch = newValue == null || newValue === '' ? 1 : Math.max(1, Number.parseInt(newValue, 10));
@@ -357,11 +357,12 @@ export default class TableChart<T = any> extends HTMLElement {
         return -compareFactor;
       });
     }
-
-    if (this.#top > 0 && this.#top < indexedData.length) {
-      return indexedData.slice(0, this.#top);
+    if (this.#top < 0 && this.#top >= indexedData.length) {
+      return indexedData;
     }
-    return indexedData;
+
+    const visibleSelectedIndex = this.#selected < 0 ? 0 : indexedData.findIndex((d) => d.i === this.#selected);
+    return indexedData.slice(0, Math.max(this.#top, visibleSelectedIndex + 1)); // at least the selected
   }
 
   private increaseTop() {
@@ -391,10 +392,11 @@ export default class TableChart<T = any> extends HTMLElement {
       .attr('title', (d) => (d.sortAble ? 'Click to sort' : null))
       .text((d) => d.name);
 
+    const sortedData = this.sortedData();
     root
       .select('tbody')
       .selectAll('tr')
-      .data(this.sortedData())
+      .data(sortedData)
       .join((enter) => {
         const tr = enter.append('tr');
         tr.on('click', (d) => {
@@ -403,6 +405,7 @@ export default class TableChart<T = any> extends HTMLElement {
         });
         return tr;
       })
+      .attr('data-i', (d) => d.i)
       .classed('selected', (d) => this.#selected === d.i)
       .selectAll('td')
       .data(
@@ -421,9 +424,16 @@ export default class TableChart<T = any> extends HTMLElement {
       )
       .text((d) => (typeof d.value === 'number' ? d.value.toLocaleString() : String(d.value)));
 
+    if (this.#selected >= 0) {
+      const selectedRow = root.select(`tr[data-i="${this.#selected}"]`).node() as HTMLElement;
+      if (selectedRow) {
+        selectedRow.scrollIntoView();
+      }
+    }
+
     root
       .select('tfoot > tr > td')
-      .classed('hidden', this.#top < 0 || this.#top >= this.#rows.length)
+      .classed('hidden', sortedData.length === this.#rows.length)
       .attr('colspan', this.#headers.length)
       .select('button')
       .on('click', () => {

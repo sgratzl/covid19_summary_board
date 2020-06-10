@@ -1,3 +1,5 @@
+import 'whatwg-fetch';
+
 import PieChart from './components/PieChart';
 import { fetchData, preparePieData, generateTableHeaders, ISummaryData } from './data';
 import TableChart from './components/TableChart';

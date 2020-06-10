@@ -1,4 +1,9 @@
+import data from './data/summary_response';
+
 describe('selection', () => {
+  beforeEach(() => {
+    cy.server().route('https://api.covid19api.com/summary', data);
+  });
   it('sort by name desc', () => {
     cy.visit('./index.html');
     cy.get('.loading').should('be.hidden');

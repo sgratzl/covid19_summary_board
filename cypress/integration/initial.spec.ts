@@ -1,4 +1,9 @@
+import data from './data/summary_response';
+
 describe('hash test', () => {
+  beforeEach(() => {
+    cy.server().route('https://api.covid19api.com/summary', data);
+  });
   it('initial load no selection', () => {
     cy.visit('./index.html');
     cy.get('#pie-header').should('contain.text', 'Worldwide');

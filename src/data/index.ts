@@ -6,7 +6,7 @@ export * from './interfaces';
 
 export function fetchData(): Promise<Readonly<ISummaryData>> {
   return fetch('https://api.covid19api.com/summary', {
-    cache: process.env.PRODUCTION ? undefined : 'force-cache',
+    cache: process.env.NODE_ENV !== 'production' ? 'force-cache' : undefined,
   }).then((r) => r.json());
 }
 

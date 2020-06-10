@@ -185,7 +185,7 @@ export default class PieChart extends HTMLElement {
       .join('div')
       .style('--color', (d) => d.data.color)
       .attr('data-count', (d) => d.data.value.toLocaleString())
-      .text((d) => d.data.name);
+      .text((d) => `${d.data.name}:`);
   }
 }
 customElements.define('pie-chart', PieChart);

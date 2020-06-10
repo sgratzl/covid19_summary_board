@@ -2,16 +2,19 @@
 
 [![Github Actions][github-actions-image]][github-actions-url]
 
-TODO image
+![Covid19 Summary Info](https://user-images.githubusercontent.com/4129778/84245750-d2eaa280-ab05-11ea-9bee-31d4af55b82a.png)
 
-## Features
+Mobile:
+![Covid19 Summary Info](https://user-images.githubusercontent.com/4129778/84245746-d1b97580-ab05-11ea-8c9e-c25755de817b.png)
+
+## Extra Features
 
 - Store the selected country in the URL Hash
 - Mobile support
 - Animated Pie Chart
 - Pie chart color legend
 - Table column sorting by clicking on the table header
-- Improved table Layout for easy readability
+- Improved table layout for easy readability
 - Bars behind numeric table cells for easy comparison
 
 ## Development Environment

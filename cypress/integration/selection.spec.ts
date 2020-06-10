@@ -26,6 +26,7 @@ describe('selection', () => {
       .should('have.class', 'selected');
 
     cy.get('#pie-clear').should('not.be.disabled');
+    cy.hash().should('be', 'US');
 
     // deselect again
     cy.get('#pie-clear').click();
@@ -37,6 +38,7 @@ describe('selection', () => {
       )
       .should('not.have.class', 'selected');
     cy.get('#pie-clear').should('be.disabled');
+    cy.hash().should('be.be.empty');
   });
   it('deselect by clicking same country', () => {
     cy.visit('./index.html');
@@ -52,6 +54,7 @@ describe('selection', () => {
       .click();
 
     cy.get('#pie-header').should('contain.text', 'United States of America');
+    cy.hash().should('be', 'US');
     cy.wait(10)
       .get('#table-chart')
       .then((table) =>
@@ -68,5 +71,6 @@ describe('selection', () => {
       )
       .should('not.have.class', 'selected');
     cy.get('#pie-clear').should('be.disabled');
+    cy.hash().should('be.empty');
   });
 });

@@ -359,7 +359,7 @@ export default class TableChart<T = any> extends HTMLElement {
         return -compareFactor;
       });
     }
-    if (this.#top < 0 && this.#top >= indexedData.length) {
+    if (this.#top < 0 || this.#top >= indexedData.length) {
       return indexedData;
     }
 
@@ -371,7 +371,7 @@ export default class TableChart<T = any> extends HTMLElement {
     this.top = this.#top + this.#batch;
   }
 
-  private render() {
+  render() {
     const root = select(this.#shadow);
     root
       .select('thead > tr')
@@ -428,7 +428,7 @@ export default class TableChart<T = any> extends HTMLElement {
 
     if (this.#selected >= 0) {
       const selectedRow = root.select(`tr[data-i="${this.#selected}"]`).node() as HTMLElement;
-      if (selectedRow) {
+      if (selectedRow && typeof selectedRow.scrollIntoView === 'function') {
         selectedRow.scrollIntoView();
       }
     }

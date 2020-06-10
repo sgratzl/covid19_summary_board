@@ -1,5 +1,5 @@
 import { pie, arc, PieArcDatum } from 'd3-shape';
-import { select } from 'd3-selection';
+import { select, Selection, BaseType } from 'd3-selection';
 import 'd3-transition';
 import { interpolateObject } from 'd3-interpolate';
 import { createTemplate } from './utils';
@@ -11,7 +11,7 @@ export declare type IPieSlice = {
 };
 export declare type IPieChartData = ReadonlyArray<IPieSlice>;
 
-declare type PieChartAttributeTypes = 'data' | 'legend';
+declare type PieChartAttributeTypes = 'data' | 'legend' | 'animated';
 
 const RADIUS = 50;
 const HOVER_RADIUS = 52;
@@ -62,6 +62,7 @@ export default class PieChart extends HTMLElement {
   #updateCallback = -1;
   #data: IPieChartData = [];
   #legend = true;
+  #animated = true;
 
   constructor() {
     super();
@@ -71,7 +72,7 @@ export default class PieChart extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['data', 'legend'] as PieChartAttributeTypes[];
+    return ['data', 'legend', 'animated'] as PieChartAttributeTypes[];
   }
 
   attributeChangedCallback(name: PieChartAttributeTypes, oldValue: string, newValue: string) {
@@ -84,6 +85,10 @@ export default class PieChart extends HTMLElement {
         break;
       case 'legend':
         this.#legend = newValue !== 'false';
+        break;
+      case 'animated':
+        this.#animated = newValue !== 'false';
+        break;
     }
     this.scheduleRender();
   }
@@ -119,11 +124,21 @@ export default class PieChart extends HTMLElement {
     if (this.#legend === v) {
       return;
     }
-    this.#legend = v;
-    this.scheduleRender();
+    this.setAttribute('legend', v.toString());
   }
 
-  private render() {
+  get animated() {
+    return this.#animated;
+  }
+
+  set animated(v: boolean) {
+    if (this.#animated === v) {
+      return;
+    }
+    this.setAttribute('animated', v.toString());
+  }
+
+  render() {
     const pieData = pie<IPieSlice>()
       .sort(null)
       .value((d) => d.value)(this.#data.slice());
@@ -148,10 +163,17 @@ export default class PieChart extends HTMLElement {
     // custom arc interpolation for proper angle animation
     function tweenArc(d: PieArcDatum<IPieSlice>, i: number) {
       const interpolate = interpolateObject(oldData[i] ?? noSlice, d);
-      return (t: number) => arcGenerator(interpolate(t))!;
+      return (t: number) => arcGenerator(t >= 1 ? d : interpolate(t))!;
     }
 
-    root
+    const animated = <T extends BaseType, S>(s: Selection<T, S, any, any>) => {
+      if (this.#animated) {
+        return s.transition();
+      }
+      return s;
+    };
+
+    const paths = root
       .selectAll('path')
       .data(pieData, (d: PieArcDatum<IPieSlice>) => d.data.name)
       .join(
@@ -161,10 +183,10 @@ export default class PieChart extends HTMLElement {
             .classed('pie-slice', true)
             .attr('d', () => arcGenerator(noSlice))
             .on('mouseenter', function (this: SVGPathElement) {
-              select(this).transition().attr('d', arcHoverGenerator);
+              animated(select(this)).attr('d', arcHoverGenerator);
             })
             .on('mouseleave', function (this: SVGPathElement) {
-              select(this).transition().attr('d', arcGenerator);
+              animated(select(this)).attr('d', arcGenerator);
             });
           p.append('title');
           return p;
@@ -175,10 +197,14 @@ export default class PieChart extends HTMLElement {
         }
       )
       .style('fill', (d) => d.data.color)
-      .transition()
-      .attrTween('d', tweenArc)
-      .select('title')
-      .text((d) => `${d.data.name}: ${d.data.value.toLocaleString()}`);
+      .attr('data-count', (d) => d.data.value);
+
+    paths.select('title').text((d) => `${d.data.name}: ${d.data.value.toLocaleString()}`);
+    if (this.#animated) {
+      paths.transition().attrTween('d', tweenArc);
+    } else {
+      paths.attr('d', arcGenerator);
+    }
 
     const legend = select(this.#shadow).select('.legend');
     legend.classed('hidden', !this.#legend);

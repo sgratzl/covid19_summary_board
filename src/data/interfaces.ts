@@ -11,7 +11,7 @@ export interface ICountryData extends IStatisticEntry {
   Country: string;
   CountryCode: string;
   Slug: string;
-  Data: string;
+  Date: string;
 }
 
 export interface ISummaryData {

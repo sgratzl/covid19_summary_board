@@ -17,7 +17,7 @@ async function main() {
   try {
     data = await fetchData();
   } catch (error) {
-    loading.textContent = 'Error during loading data, please try later';
+    loading.textContent = 'Error during data loading, please try later';
     loading.classList.add('loading-error');
     console.error(error);
   }

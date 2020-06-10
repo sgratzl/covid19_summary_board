@@ -38,7 +38,7 @@ describe('selection', () => {
       )
       .should('not.have.class', 'selected');
     cy.get('#pie-clear').should('be.disabled');
-    cy.hash().should('be.be.empty');
+    cy.hash().should('be', '#');
   });
   it('deselect by clicking same country', () => {
     cy.visit('./index.html');
@@ -71,6 +71,6 @@ describe('selection', () => {
       )
       .should('not.have.class', 'selected');
     cy.get('#pie-clear').should('be.disabled');
-    cy.hash().should('be.empty');
+    cy.hash().should('be', '#');
   });
 });

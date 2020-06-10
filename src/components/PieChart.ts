@@ -1,4 +1,7 @@
-import { select, pie, arc, PieArcDatum, interpolateObject } from 'd3';
+import { pie, arc, PieArcDatum } from 'd3-shape';
+import { select } from 'd3-selection';
+import 'd3-transition';
+import { interpolateObject } from 'd3-interpolate';
 import { createTemplate } from './utils';
 
 export declare type IPieSlice = {

@@ -1,6 +1,6 @@
 import { ISummaryData, IStatisticEntry, ICountryData } from './interfaces';
 import { ITableHeaders, IPieChartData } from '../components';
-import { schemeAccent } from 'd3';
+import { schemeAccent } from 'd3-scale-chromatic';
 
 export * from './interfaces';
 

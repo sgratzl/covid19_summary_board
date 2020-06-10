@@ -1,4 +1,6 @@
-import { select, event, scaleLinear } from 'd3';
+import { select, event } from 'd3-selection';
+import 'd3-transition';
+import { scaleLinear } from 'd3-scale';
 import { accessor, createTemplate } from './utils';
 
 export declare type IStringTableHeader<T> = {

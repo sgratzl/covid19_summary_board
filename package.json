@@ -1,15 +1,26 @@
 {
-  "name": "roche_covid",
+  "name": "covid19_summary_board",
   "private": true,
   "version": "1.0.0",
-  "description": "Roche COVID19 Summary Demo page",
-  "author": "Samuel Gratzl",
+  "description": "COVID19 Summary Demo page",
+  "author": {
+    "name": "Samuel Gratzl",
+    "email": "samu@sgratzl.com",
+    "url": "https://wwww.sgratzl.com"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sgratzl/covid19_summary_board.git"
+  },
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build index.html",
     "test": "jest --watch",
-    "e2e": "cypress --open"
+    "cy": "cypress open",
+    "cy:start": "cypress open --config baseUrl=http://localhost:1234",
+    "e2e": "cypress run",
+    "e2e:ci": "cypress run --reporter junit --reporter-options 'mochaFile=junit-results/my-test-output.xml'"
   },
   "browserslist": [
     "Firefox ESR",

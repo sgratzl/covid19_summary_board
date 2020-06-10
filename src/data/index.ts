@@ -1,5 +1,5 @@
-import { ISummaryData, IStatisticEntry, ICountyData } from './interfaces';
-import { ITableHeaders, IPieChartData } from '../components/index';
+import { ISummaryData, IStatisticEntry, ICountryData } from './interfaces';
+import { ITableHeaders, IPieChartData } from '../components';
 import { schemeAccent } from 'd3';
 
 export * from './interfaces';
@@ -16,7 +16,7 @@ const colors = {
   recovered: schemeAccent[0],
 };
 
-export function generateTableHeaders(data: ISummaryData): ITableHeaders<ICountyData> {
+export function generateTableHeaders(data: ISummaryData): ITableHeaders<ICountryData> {
   const max = data.Countries.reduce((acc, d) => Math.max(acc, d.TotalConfirmed), 0);
   return [
     {

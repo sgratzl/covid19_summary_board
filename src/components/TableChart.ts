@@ -7,6 +7,7 @@ export declare type IStringTableHeader<T> = {
   readonly type: 'string';
   readonly attr: keyof T | ((d: T) => string);
 };
+
 export declare type INumberTableHeader<T> = {
   readonly name: string;
   readonly sortAble?: boolean;
@@ -15,6 +16,7 @@ export declare type INumberTableHeader<T> = {
   readonly domain: [number, number];
   readonly attr: keyof T | ((d: T) => number);
 };
+
 export declare type ITableHeader<T> = IStringTableHeader<T> | INumberTableHeader<T>;
 export declare type ITableHeaders<T> = ReadonlyArray<ITableHeader<T>>;
 
@@ -24,7 +26,8 @@ declare type TableChartAttributeTypes =
   | 'selected'
   | 'sorted-column-index'
   | 'sorted-column-order'
-  | 'top';
+  | 'top'
+  | 'batch';
 
 export default class TableChart<T = any> extends HTMLElement {
   private static readonly template = createTemplate(`<style>
@@ -139,10 +142,11 @@ export default class TableChart<T = any> extends HTMLElement {
   #updateCallback = -1;
   #rows: ReadonlyArray<T> = [];
   #headers: ITableHeaders<T> = [];
-  #selected: number = -1;
-  #sortedColumnIndex: number = -1;
+  #selected = -1;
+  #sortedColumnIndex = -1;
   #sortedColumnOrder: 'asc' | 'desc' = 'asc';
-  #top: number = -1;
+  #top = -1;
+  #batch = 10;
 
   constructor() {
     super();
@@ -160,6 +164,7 @@ export default class TableChart<T = any> extends HTMLElement {
       'sorted-column-order',
       'top',
       'wrapper',
+      'batch',
     ] as TableChartAttributeTypes[];
   }
 
@@ -187,6 +192,9 @@ export default class TableChart<T = any> extends HTMLElement {
       case 'top':
         this.#top = newValue == null || newValue === '' ? -1 : Math.max(-1, Number.parseInt(newValue, 10));
         break;
+      case 'batch':
+        this.#batch = newValue == null || newValue === '' ? 1 : Math.max(1, Number.parseInt(newValue, 10));
+        break;
     }
     this.scheduleRender();
   }
@@ -210,6 +218,9 @@ export default class TableChart<T = any> extends HTMLElement {
   }
 
   set selected(v: number) {
+    if (v < -1) {
+      throw new Error('must be >= 0 or -1');
+    }
     if (v === this.#selected) {
       return;
     }
@@ -221,10 +232,27 @@ export default class TableChart<T = any> extends HTMLElement {
   }
 
   set top(v: number) {
+    if (v < -1) {
+      throw new Error('must be >= 0 or -1');
+    }
     if (v === this.#top) {
       return;
     }
     this.setAttribute('top', v.toString());
+  }
+
+  get batch() {
+    return this.#batch;
+  }
+
+  set batch(v: number) {
+    if (v <= 0) {
+      throw new Error('must be >= 0');
+    }
+    if (v === this.#batch) {
+      return;
+    }
+    this.setAttribute('batch', v.toString());
   }
 
   get sortedColumnIndex() {
@@ -232,6 +260,9 @@ export default class TableChart<T = any> extends HTMLElement {
   }
 
   set sortedColumnIndex(v: number) {
+    if (v < -1) {
+      throw new Error('must be >= 0 or -1');
+    }
     if (v === this.#sortedColumnIndex) {
       return;
     }
@@ -327,14 +358,14 @@ export default class TableChart<T = any> extends HTMLElement {
       });
     }
 
-    if (this.#top > 0) {
+    if (this.#top > 0 && this.#top < indexedData.length) {
       return indexedData.slice(0, this.#top);
     }
     return indexedData;
   }
 
   private increaseTop() {
-    this.top = this.#top + 10; // TODO config
+    this.top = this.#top + this.#batch;
   }
 
   private render() {

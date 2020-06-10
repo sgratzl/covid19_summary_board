@@ -10,6 +10,9 @@ export declare type IPieChartData = ReadonlyArray<IPieSlice>;
 
 declare type PieChartAttributeTypes = 'data' | 'legend';
 
+const RADIUS = 50;
+const HOVER_RADIUS = 52;
+
 export default class PieChart extends HTMLElement {
   private static readonly template = createTemplate(`
   <style>
@@ -45,12 +48,13 @@ export default class PieChart extends HTMLElement {
     flex-grow: 1;
   }
   </style>
-  <svg viewBox="0 0 104 104">
-    <g transform="translate(52,52)">
+  <svg viewBox="0 0 ${HOVER_RADIUS * 2} ${HOVER_RADIUS * 2}">
+    <g transform="translate(${HOVER_RADIUS},${HOVER_RADIUS})">
     </g>
   </svg>
   <div class="legend">
   </div>`);
+
   readonly #shadow: ShadowRoot;
   #updateCallback = -1;
   #data: IPieChartData = [];
@@ -120,10 +124,13 @@ export default class PieChart extends HTMLElement {
     const pieData = pie<IPieSlice>()
       .sort(null)
       .value((d) => d.value)(this.#data.slice());
-    const arcGenerator = arc<PieArcDatum<IPieSlice>>().innerRadius(0).outerRadius(50);
-    const arcGeneratorHover = arc<PieArcDatum<IPieSlice>>().innerRadius(0).outerRadius(52);
+
+    const arcGenerator = arc<PieArcDatum<IPieSlice>>().innerRadius(0).outerRadius(RADIUS);
+    const arcHoverGenerator = arc<PieArcDatum<IPieSlice>>().innerRadius(0).outerRadius(HOVER_RADIUS);
+
     const root = select(this.#shadow).select('svg > g');
 
+    // helper for proper animation
     const noSlice: PieArcDatum<IPieSlice> = {
       startAngle: 0,
       endAngle: Math.PI * 2,
@@ -132,7 +139,10 @@ export default class PieChart extends HTMLElement {
       index: 0,
       data: { color: '', name: '', value: 0 },
     };
+
     const oldData = root.selectAll<SVGPathElement, PieArcDatum<IPieSlice>>('path').data();
+
+    // custom arc interpolation for proper angle animation
     function tweenArc(d: PieArcDatum<IPieSlice>, i: number) {
       const interpolate = interpolateObject(oldData[i] ?? noSlice, d);
       return (t: number) => arcGenerator(interpolate(t))!;
@@ -148,7 +158,7 @@ export default class PieChart extends HTMLElement {
             .classed('pie-slice', true)
             .attr('d', () => arcGenerator(noSlice))
             .on('mouseenter', function (this: SVGPathElement) {
-              select(this).transition().attr('d', arcGeneratorHover);
+              select(this).transition().attr('d', arcHoverGenerator);
             })
             .on('mouseleave', function (this: SVGPathElement) {
               select(this).transition().attr('d', arcGenerator);

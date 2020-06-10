@@ -7,7 +7,7 @@ export interface IStatisticEntry {
   TotalRecovered: number;
 }
 
-export interface ICountyData extends IStatisticEntry {
+export interface ICountryData extends IStatisticEntry {
   Country: string;
   CountryCode: string;
   Slug: string;
@@ -16,5 +16,5 @@ export interface ICountyData extends IStatisticEntry {
 
 export interface ISummaryData {
   Global: Readonly<IStatisticEntry>;
-  Countries: ReadonlyArray<Readonly<ICountyData>>;
+  Countries: ReadonlyArray<Readonly<ICountryData>>;
 }
